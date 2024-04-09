@@ -19,7 +19,6 @@ public class UsersService {
     private final BooksService booksService;
 
     @Transactional
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public List<User> findUserByBooks(String title, int index) {
         System.out.println("Transactional findUserByBooks(" + title + ") СТАРТ индекс транзакции = " + index);
         Book book = booksService.findBookByName(title, index);

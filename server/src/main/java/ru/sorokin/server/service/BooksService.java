@@ -14,7 +14,6 @@ public class BooksService {
     private final BooksRepository repository;
 
     @Transactional
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public Book findBookByName(String title, int index) throws RuntimeException {
         System.out.println("Transactional findBookByName(" + title + ") СТАРТ индекс транзакции = " + index);
         Book book = repository.findBookByNameContainsIgnoreCase(title).orElseThrow(RuntimeException::new);
@@ -23,22 +22,20 @@ public class BooksService {
     }
 
     @Transactional
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public Book findBookByNameAndUpdate(String title, String newTitle, int index) throws RuntimeException {
         System.out.println("Transactional findBookByNameAndUpdate старт индекс транзакции = " + index);
         System.out.println("repository.findBookByNameContainsIgnoreCase(" + title + ") старт индекс транзакции = " + index);
-        Book book = repository.findBookByNameContainsIgnoreCase(title).orElseThrow(RuntimeException::new);
+        Book book = findBookByName(title, index);
         System.out.println("repository.findBookByNameContainsIgnoreCase(" + title + ") стоп индекс транзакции = " + index);
         book.setName(newTitle);
         System.out.println("repository.save(book " + newTitle + ") старт индекс транзакции = " + index);
-        repository.save(book);
+        updateBook(book, index);
         System.out.println("repository..save(book " + newTitle + ") стоп индекс транзакции = " + index);
         System.out.println("Transactional findBookByNameAndUpdate стоп индекс транзакции = " + index);
         return book;
     }
 
     @Transactional
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public Book updateBook(Book book, int index) {
         System.out.println("Transactional Сервис updateBook старт индекс транзакции = " + index);
         Book book1 = repository.save(book);
