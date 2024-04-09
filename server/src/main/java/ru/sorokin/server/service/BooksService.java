@@ -15,13 +15,25 @@ public class BooksService {
 
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public Book findBookByName(String name) throws RuntimeException {
-        return repository.findBookByNameContainsIgnoreCase(name).orElseThrow(RuntimeException::new);
+    public Book findBookByName(String name, int index) throws RuntimeException {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+        System.out.println("Transactional Сервис findBookByName старт индекс транзакции = " + index);
+        Book book = repository.findBookByNameContainsIgnoreCase(name).orElseThrow(RuntimeException::new);
+        System.out.println("Transactional Сервис findBookByName стоп индекс транзакции = " + index);
+        return book;
     }
 
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public Book updateBook(Book book) {
-        return repository.save(book);
+    public Book updateBook(Book book, int index) {
+
+        System.out.println("Transactional Сервис updateBook старт индекс транзакции = " + index);
+        Book book1 =  repository.save(book);
+        System.out.println("Transactional Сервис updateBook стоп индекс транзакции = " + index);
+        return book1;
     }
 }
