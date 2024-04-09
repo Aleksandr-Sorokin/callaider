@@ -20,22 +20,16 @@ public class UsersService {
 
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public List<User> findUserByBooks(String bookTitle, int index) {
-
-        System.out.println("Transactional Сервис findUserByBooks booksService.findBookByName старт индекс транзакции = " + index);
-        Book book = booksService.findBookByName(bookTitle, index);
-        System.out.println(index + " index " + book);
+    public List<User> findUserByBooks(String title, int index) {
+        System.out.println("Transactional findUserByBooks(" + title + ") СТАРТ индекс транзакции = " + index);
+        Book book = booksService.findBookByName(title, index);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
         }
-        System.out.println("Transactional Сервис findUserByBooks repository.findUserByBooks(book) старт индекс транзакции = " + index);
-        System.out.println(index + " index " + book);
         List<User> users = repository.findUserByBooks(book).orElse(new ArrayList<>());
-        System.out.println(index + " index " + book);
-        System.out.println(index + " index " + users);
-        System.out.println("Transactional Сервис findUserByBooks стоп индекс транзакции = " + index);
+        System.out.println("Transactional findUserByBooks(" + title + ") СТОП индекс транзакции = " + index);
         return users;
     }
 }
