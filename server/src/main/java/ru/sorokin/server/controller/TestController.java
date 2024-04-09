@@ -12,13 +12,15 @@ import ru.sorokin.server.service.UsersService;
 
 import java.util.List;
 
+import static ru.sorokin.server.ServerApplication.CAT;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/test")
 public class TestController {
     private final UsersService usersService;
     private final BooksService booksService;
-    private volatile int version = 1;
+    private volatile int version = 0;
 
     @GetMapping("/users")
     public List<User> findUserByBooksName(@RequestParam String title) {
@@ -49,4 +51,70 @@ public class TestController {
         return book1;
     }
 
+    @GetMapping("/users/start")
+    public void getTreads() {
+        Thread thread0 = new Thread(() -> {
+            System.out.println("thread 0 start");
+            try {
+                findUserByBooksName("Аэлита");
+            } catch (RuntimeException e) {
+                System.out.println(CAT + "\nthread 0 отвалился ");
+            }
+            System.out.println(CAT + "\nthread 0 STOP ");
+        });
+        thread0.start();
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+
+        Thread thread1 = new Thread(() -> {
+            System.out.println("thread 1 start");
+            try {
+                findBookByNameAndUpdate("Аэлита", "Аэлита1");
+            } catch (RuntimeException e) {
+                System.out.println(CAT + "\nthread 1 отвалился ");
+            }
+            System.out.println(CAT + "\nthread 1 STOP ");
+        });
+        thread1.start();
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+
+        Thread thread2 = new Thread(() -> {
+            System.out.println("thread 2 start");
+            try {
+                findUserByBooksName("Аэлита");
+            } catch (RuntimeException e) {
+                System.out.println(CAT + "\nthread 2 отвалился ");
+            }
+            System.out.println(CAT + "\nthread 2 STOP ");
+        });
+        thread2.start();
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+
+        Thread thread3 = new Thread(() -> {
+            System.out.println("thread 3 start");
+            try {
+                findBookByNameAndUpdate("Аэлита", "Аэлита2");
+            } catch (RuntimeException e) {
+                System.out.println(CAT + "\nthread 3 отвалился ");
+            }
+            System.out.println(CAT + "\nthread 3 STOP ");
+        });
+        thread3.start();
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }
