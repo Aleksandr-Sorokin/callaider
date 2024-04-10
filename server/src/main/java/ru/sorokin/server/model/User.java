@@ -22,7 +22,7 @@ public class User {
     private String firstName;
     private String lastName;
     private Date birthdate;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_books",
             joinColumns = @JoinColumn(name = "user_login"),

@@ -85,32 +85,32 @@ public class TestController {
 //            Thread.currentThread().interrupt();
 //        }
 
-        Thread thread2 = new Thread(() -> {
-            System.out.println("thread 2 start");
-            try {
-                findUserByBooksName("Аэлита");
-            } catch (RuntimeException e) {
-                System.out.println(CAT + "\nthread 2 отвалился ");
-            }
-            System.out.println(CAT + "\nthread 2 STOP ");
-        });
-        thread2.start();
-//        try {
-//            Thread.sleep(10);
-//        } catch (InterruptedException ie) {
-//            Thread.currentThread().interrupt();
-//        }
-
-        Thread thread3 = new Thread(() -> {
-            System.out.println("thread 3 start");
-            try {
-                findBookByNameAndUpdate("Аэлита", "Аэлита2");
-            } catch (RuntimeException e) {
-                System.out.println(CAT + "\nthread 3 отвалился ");
-            }
-            System.out.println(CAT + "\nthread 3 STOP ");
-        });
-        thread3.start();
+//        Thread thread2 = new Thread(() -> {
+//            System.out.println("thread 2 start");
+//            try {
+//                findUserByBooksName("Аэлита");
+//            } catch (RuntimeException e) {
+//                System.out.println(CAT + "\nthread 2 отвалился ");
+//            }
+//            System.out.println(CAT + "\nthread 2 STOP ");
+//        });
+//        thread2.start();
+////        try {
+////            Thread.sleep(10);
+////        } catch (InterruptedException ie) {
+////            Thread.currentThread().interrupt();
+////        }
+//
+//        Thread thread3 = new Thread(() -> {
+//            System.out.println("thread 3 start");
+//            try {
+//                findBookByNameAndUpdate("Аэлита", "Аэлита2");
+//            } catch (RuntimeException e) {
+//                System.out.println(CAT + "\nthread 3 отвалился ");
+//            }
+//            System.out.println(CAT + "\nthread 3 STOP ");
+//        });
+//        thread3.start();
 //        try {
 //            Thread.sleep(10);
 //        } catch (InterruptedException ie) {
