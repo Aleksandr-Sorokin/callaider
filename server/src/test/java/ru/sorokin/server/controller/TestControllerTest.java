@@ -10,6 +10,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 class TestControllerTest {
+    int ISOLATION_LEVEL = Connection.TRANSACTION_SERIALIZABLE;
+//    int ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
+//    int ISOLATION_LEVEL = Connection.TRANSACTION_REPEATABLE_READ;
 
     @BeforeEach
     void addData() {
@@ -23,17 +26,17 @@ class TestControllerTest {
             connStatement.executeUpdate("UPDATE test_data SET version = 'v1' WHERE id = 2");
             conn.commit();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getClass().getName() + " " + e.getMessage());
         }
     }
 
     @Test
-    void testReadCommitUpdateFirstTransaction() {
-        int ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
+    void testUpdateFirstBeforeSecondTransaction() {
         try (
                 final Connection connection = Repository.getConnection();
                 final Statement statement = connection.createStatement()
         ) {
+            System.out.println("testUpdateFirstBeforeSecondTransaction");
             connection.setAutoCommit(false);
             connection.setTransactionIsolation(ISOLATION_LEVEL);
 
@@ -72,7 +75,7 @@ class TestControllerTest {
                     System.out.println("[secondTransaction commit]");
 
                 } catch (SQLException e) {
-                    System.out.println(e.getMessage());
+                    System.out.println("[secondTransaction]" + e.getClass().getName() + " " + e.getMessage());
                 }
             });
             otherTransaction.start();
@@ -95,17 +98,17 @@ class TestControllerTest {
             System.out.println("[firstTransaction commit]");
 
         } catch (SQLException | InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println("[firstTransaction]" + e.getClass().getName() + " " + e.getMessage());
         }
     }
 
     @Test
-    void testReadCommitUpdateSecondTransaction() {
-        int ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
+    void testOnlyUpdateSecondTransaction() {
         try (
                 final Connection connection = Repository.getConnection();
                 final Statement statement = connection.createStatement()
         ) {
+            System.out.println("OnlyUpdateSecondTransaction");
             connection.setAutoCommit(false);
             connection.setTransactionIsolation(ISOLATION_LEVEL);
 
@@ -133,7 +136,7 @@ class TestControllerTest {
                     System.out.println("[secondTransaction commit]");
 
                 } catch (SQLException e) {
-                    System.out.println(e.getMessage());
+                    System.out.println("[secondTransaction]" + e.getClass().getName() + " " + e.getMessage());
                 }
             });
             secondTransaction.start();
@@ -149,14 +152,13 @@ class TestControllerTest {
 
 
         } catch (SQLException | InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println("[firstTransaction]" + e.getClass().getName() + " " + e.getMessage());
         }
     }
 
     @Test
-    void testReadCommitFirstUpdateAfterUpdateSecondTransaction() {
-        System.out.println("Транзакция начинается с первой, но обновление со второй, затем обновление первой и коммит второй");
-        int ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
+    void testSecondTransactionUpdateBeforeUpdateFirstTransaction() {
+        System.out.println("testSecondTransactionUpdateBeforeUpdateFirstTransaction");
         try (
                 final Connection connection = Repository.getConnection();
                 final Statement statement = connection.createStatement()
@@ -196,7 +198,7 @@ class TestControllerTest {
                     System.out.println("[secondTransaction commit]");
 
                 } catch (SQLException e) {
-                    System.out.println(e.getMessage());
+                    System.out.println("[secondTransaction]" + e.getClass().getName() + " " + e.getMessage());
                 }
             });
             secondTransaction.start();
@@ -212,7 +214,7 @@ class TestControllerTest {
             System.out.println("[firstTransaction commit]");
 
         } catch (SQLException | InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println("[firstTransaction]" + e.getClass().getName() + " " + e.getMessage());
         }
     }
 }
