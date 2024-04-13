@@ -3,6 +3,7 @@ package ru.sorokin.server.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.sorokin.server.repository.Repository;
+import ru.sorokin.server.service.DataTransactionService;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -14,8 +15,11 @@ class TestControllerTest {
 //    int ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
 //    int ISOLATION_LEVEL = Connection.TRANSACTION_REPEATABLE_READ;
 
+    private DataTransactionService dataTransactionService;
+
     @BeforeEach
     void addData() {
+        dataTransactionService = new DataTransactionService();
         try (
                 final Connection conn = Repository.getConnection();
                 final Statement connStatement = conn.createStatement()
@@ -23,7 +27,7 @@ class TestControllerTest {
             conn.setAutoCommit(false);
             conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
-            connStatement.executeUpdate("UPDATE test_data SET version = 'v1' WHERE id = 2");
+            connStatement.executeUpdate("UPDATE test_data SET data = 'test data 1', version = 'v1'");
             conn.commit();
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + " " + e.getMessage());
@@ -100,6 +104,22 @@ class TestControllerTest {
         } catch (SQLException | InterruptedException e) {
             System.out.println("[firstTransaction]" + e.getClass().getName() + " " + e.getMessage());
         }
+    }
+
+    @Test
+    void testUpdateFirstBeforeSecondTransactionOtherField() {
+
+            System.out.println("testUpdateFirstBeforeSecondTransactionOtherField");
+            String selectID2Rq = "SELECT * FROM test_data WHERE id = 2";
+            String updateTestDataID2Rq = "UPDATE test_data SET data = 'test data 2' WHERE id = 2";
+
+            dataTransactionService.firstTransaction(
+                    ISOLATION_LEVEL,
+                    updateTestDataID2Rq,
+                    selectID2Rq,
+                    dataTransactionService.otherThread(ISOLATION_LEVEL, updateTestDataID2Rq, selectID2Rq),
+                    2000);
+
     }
 
     @Test
@@ -209,6 +229,67 @@ class TestControllerTest {
             while (resultSetOne1.next()) {
                 final String version = resultSetOne1.getString("version");
                 System.out.println("[firstTransaction UPDATE] version: " + version);
+            }
+            connection.commit();
+            System.out.println("[firstTransaction commit]");
+
+        } catch (SQLException | InterruptedException e) {
+            System.out.println("[firstTransaction]" + e.getClass().getName() + " " + e.getMessage());
+        }
+    }
+
+    @Test
+    void testInsertSecondTransaction() {
+        System.out.println("testInsertSecondTransaction");
+        try (
+                final Connection connection = Repository.getConnection();
+                final Statement statement = connection.createStatement()
+        ) {
+            connection.setAutoCommit(false);
+            connection.setTransactionIsolation(ISOLATION_LEVEL);
+
+            final ResultSet resultSetOne = statement.executeQuery("SELECT count(*) FROM test_data");
+            while (resultSetOne.next()) {
+                final int count = resultSetOne.getInt(1);
+                System.out.println("[firstTransaction SELECT] Count: " + count);
+            }
+
+            Thread secondTransaction = new Thread(() -> {
+                try (
+                        final Connection conn = Repository.getConnection();
+                        final Statement connStatement = conn.createStatement()
+                ) {
+                    conn.setAutoCommit(false);
+                    conn.setTransactionIsolation(ISOLATION_LEVEL);
+
+                    connStatement.executeUpdate("INSERT INTO test_data(data, version) values ('test data 2', 'v2')");
+                    final ResultSet resultSetTwo = connStatement.executeQuery("SELECT count(*) FROM test_data");
+                    while (resultSetTwo.next()) {
+                        final int count = resultSetTwo.getInt(1);
+                        System.out.println("[secondTransaction INSERT] Count: " + count);
+                    }
+                    var start = System.currentTimeMillis();
+//                    try {
+//                        Thread.sleep(3000);
+//                    } catch (InterruptedException ie) {
+//                        Thread.currentThread().interrupt();
+//                    }
+                    var stop = System.currentTimeMillis();
+                    System.out.println("Pause before secondTransaction commit = " + (stop - start));
+                    conn.commit();
+                    System.out.println("[secondTransaction commit]");
+
+                } catch (SQLException e) {
+                    System.out.println("[secondTransaction]" + e.getClass().getName() + " " + e.getMessage());
+                }
+            });
+            secondTransaction.start();
+            Thread.sleep(2000);
+            System.out.println("Wait commit second Transaction");
+            final ResultSet resultSetOne1 = statement.executeQuery("SELECT count(*) FROM test_data");
+            while (resultSetOne1.next()) {
+                final int count = resultSetOne1.getInt(1);
+                System.out.println("[firstTransaction SELECT] Count: " + count);
             }
             connection.commit();
             System.out.println("[firstTransaction commit]");
