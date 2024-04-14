@@ -11,8 +11,8 @@ import java.sql.Statement;
 
 class TestControllerTest {
 //    int ISOLATION_LEVEL = Connection.TRANSACTION_SERIALIZABLE;
-    int ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
-//    int ISOLATION_LEVEL = Connection.TRANSACTION_REPEATABLE_READ;
+//    int ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
+    int ISOLATION_LEVEL = Connection.TRANSACTION_REPEATABLE_READ;
 
     private DataTransactionService dataTransactionService;
 
@@ -130,6 +130,8 @@ class TestControllerTest {
 
     @Test
     void testTransactionUpdateWithOtherDataIDButFirstBefore() {
+        //отличичается при TRANSACTION_REPEATABLE_READ
+
         byte startUpdateFirstTransactionAfter = 2;
         String selectID2Rq = "SELECT * FROM test_data WHERE id = 2";
         String selectID3Rq = "SELECT * FROM test_data WHERE id = 4";
