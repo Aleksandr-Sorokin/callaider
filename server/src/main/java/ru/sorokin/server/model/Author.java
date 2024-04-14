@@ -20,6 +20,8 @@ public class Author {
     private Long id;
     private String name;
     private String lastName;
-    @ManyToMany(mappedBy = "authors", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "authors", fetch = FetchType.EAGER)
     private Set<Book> books;
+    @Version
+    private int version;
 }

@@ -22,11 +22,13 @@ public class User {
     private String firstName;
     private String lastName;
     private Date birthdate;
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_books",
             joinColumns = @JoinColumn(name = "user_login"),
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )
     private Set<Book> books;
+    @Version
+    private int version;
 }
