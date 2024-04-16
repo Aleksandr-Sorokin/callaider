@@ -11,6 +11,6 @@ import java.util.Optional;
 
 public interface UsersRepository extends CrudRepository<User, String> {
 
-    @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<List<User>> findUserByBooks(Book book);
 }

@@ -22,6 +22,6 @@ public class Author {
     private String lastName;
     @ManyToMany(mappedBy = "authors", fetch = FetchType.EAGER)
     private Set<Book> books;
-    @Version
+    //@Version
     private int version;
 }

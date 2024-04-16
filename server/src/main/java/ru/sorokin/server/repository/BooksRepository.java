@@ -11,6 +11,6 @@ import java.util.Optional;
 
 public interface BooksRepository extends CrudRepository<Book, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Book> findBookByNameContainsIgnoreCase(String name);
 }

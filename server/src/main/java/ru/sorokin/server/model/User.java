@@ -29,6 +29,6 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )
     private Set<Book> books;
-    @Version
+    //@Version
     private int version;
 }
